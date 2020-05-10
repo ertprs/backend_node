@@ -1,0 +1,21 @@
+{
+  "name": "backend_whatsapp",
+  "version": "1.0.0",
+  "description": "Backend Whatsapp v.1.0.0",
+  "main": "index.js",
+  "bin": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "Backend",
+    "Whatsapp"
+  ],
+  "author": "fajarlabs",
+  "license": "ISC",
+  "dependencies": {
+    "asyncawait": "^3.0.0",
+    "ini": "^1.3.5"
+  }
+}
