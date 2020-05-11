@@ -12,7 +12,7 @@ var jwt = require('jwt-simple');
 const { base64encode, base64decode } = require('nodejs-base64');
 var config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'))
 const Cookies = require('js-cookie');
-const Title = 'Login | Whatsapp for sales';
+const Footer_text = '@2020 | Whatsapp for sales.'
 
 const db = new Pool({
   user: config.database.user,
@@ -72,7 +72,7 @@ app.use(bodyParser.json())
 // web view
 app.get('/', (req, res) => {
 	res.render('login', { 
-		title: Title, 
+		title: 'Login | Whatsapp for sales', 
 		js_include: [
 			'/assets/cookieconsent.min.js',
 			'/assets/jquery.min.js',
@@ -85,7 +85,8 @@ app.get('/', (req, res) => {
 
 app.get('/dashboard', (req, res) => {
 	res.render('dashboard', { 
-		title: Title, 
+		title: 'Dashboard | Whatsapp for sales', 
+		footer_text : Footer_text,
 		js_include: [
 			'/assets/jquery.min.js',
 			'/assets/sweetalert.min.js',
