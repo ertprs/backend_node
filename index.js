@@ -7,10 +7,12 @@ var messages = require('./message');
 var proc = require('./controller_model');
 const { Pool, Client } = require('pg')
 var fs = require('fs'), ini = require('ini')
-
-app.set('view engine', 'ejs')
-
+var path = require('path');
+var jwt = require('jwt-simple');
+const { base64encode, base64decode } = require('nodejs-base64');
 var config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'))
+const Cookies = require('js-cookie');
+const Title = 'Login | Whatsapp for sales';
 
 const db = new Pool({
   user: config.database.user,
@@ -19,6 +21,25 @@ const db = new Pool({
   password: config.database.password,
   port: config.database.port,
 })
+
+// add library to load_module and distributed to all controllers & models
+var load_module = {
+	jwt : jwt,
+	base64decode : base64decode,
+	base64encode : base64encode,
+	config : config,
+	db : db,
+}
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs')
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/assets', [
+    express.static(__dirname + '/node_modules/jquery/dist/'),
+    express.static(__dirname + '/node_modules/cookieconsent/build/'),
+    express.static(__dirname + '/node_modules/sweetalert/dist/'),
+]);
 
 db.query('SELECT version()', (err, res) => {
   console.log(`Database version : ${res.rows[0].version}`)
@@ -48,10 +69,39 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
-// get health status
+// web view
 app.get('/', (req, res) => {
-    res.json({"status":"ok", "description":"Webhook is active"})
+	res.render('login', { 
+		title: Title, 
+		js_include: [
+			'/assets/cookieconsent.min.js',
+			'/assets/jquery.min.js',
+			'/assets/sweetalert.min.js',
+			'/assets/js/custom.js',
+			'/assets/js/login.js',
+		]
+	})
 })
+
+app.get('/dashboard', (req, res) => {
+	res.render('dashboard', { 
+		title: Title, 
+		js_include: [
+			'/assets/jquery.min.js',
+			'/assets/sweetalert.min.js',
+			'/assets/js/custom.js',
+		]
+	})
+})
+
+app.get('/logout', (req, res) => {
+	res.render('logout', {})
+})
+
+// api v1 restFul
+app.post('/api/auth', function(req, res) {
+    proc.auth_login(req, res, load_module)
+});
 
 // proses dari pesan yang telah masuk
 app.post('/api/incoming-webhook', (req, res) => {	

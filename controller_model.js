@@ -14,4 +14,27 @@ module.exports = {
 			}
 		)
 	},
+	auth_login: function(req, res, load_module){
+		var username = req.body.username
+		var password = req.body.password
+		var remember = req.body.remember
+		var status = 1 // is active
+		load_module.db.query(
+			'SELECT id, username, email, first_name, last_name, counter, status FROM app_user WHERE username=$1 AND password=$2 AND status = $3',
+			[username, password, status ],
+			(error, results) => {
+			    if (error) {
+					res.json({"status":"failed", "data":"", "description": "Query error, please contact developer to email fajarrdp@gmail.com"})
+			    } else {
+			    	if (results.rows.length > 0){
+			    		var user = results.rows[0]
+			    		var token = load_module.jwt.encode(user, load_module.config.app.secret_jwt)
+			    		res.json({"status":"sucess", "data": load_module.base64encode(token)})
+			    	} else {
+						res.json({"status":"failed", "data":"", "description": "Login failed, please try again."})
+					}
+				}
+			}
+		)
+	},
 };
