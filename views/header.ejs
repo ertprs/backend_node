@@ -18,6 +18,8 @@
         <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
         <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
         <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
+        <link href="assets/libs/fontawesome/css/all.css" rel="stylesheet" type="text/css" />
+        <link href="assets/css/simplePagination.css" rel="stylesheet" type="text/css" />
 
     </head>
 
@@ -243,7 +245,7 @@
                     <img src="assets/images/users/avatar-7.jpg" class="avatar-xs rounded-circle mr-2" alt="Shreyu" />
 
                     <div class="media-body">
-                        <h6  class="label-user pro-user-name mt-0 mb-0">Nik Patel</h6>
+                        <h6  class="label-user pro-user-name mt-0 mb-0"></h6>
                         <span class="label-user-title pro-user-desc">Administrator</span>
                     </div>
                     <div class="dropdown align-self-center profile-dropdown-menu">
@@ -274,7 +276,7 @@
 
                             <div class="dropdown-divider"></div>
 
-                            <a href="javascript:void(0);" class="dropdown-item notify-item">
+                            <a href="/logout" class="dropdown-item notify-item">
                                 <i data-feather="log-out" class="icon-dual icon-xs mr-2"></i>
                                 <span>Logout</span>
                             </a>
@@ -292,6 +294,18 @@
                                     <i data-feather="home"></i>
                                     <span class="badge badge-success float-right">1</span>
                                     <span> Dashboard </span>
+                                </a>
+                            </li>
+                            <li class="menu-title">Modules</li>
+                            <li>
+                                <a href="/inbox">
+                                    <i data-feather="inbox"></i>
+                                    <span class="badge badge-success float-right">0</span>
+                                    <span> Inbox </span>
+                                </a>
+                                <a href="#">
+                                    <i data-feather="bookmark"></i>
+                                    <span> Process order </span>
                                 </a>
                             </li>
                             <li class="menu-title">Apps</li>

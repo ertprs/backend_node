@@ -68,15 +68,15 @@ module.exports = {
 		return result
 	},
 	// melakukan cek pemesanan dari format pesan masuk
-	check_order: function(user, text, db) {
+	save_inbox: function(user, text, db) {
 		var result = []
 		var order = tools.parse_message(text)
 		// order
 		if (order.length > 0) {
 			if(order.length == 7){
 				db.query(
-					'INSERT INTO wa_order (chat_id, message, is_process) VALUES ($1, $2, $3)',
-					[req.body.user, req.body.text, 0],
+					'INSERT INTO wa_order (chat_id, message ) VALUES ($1, $2)',
+					[req.body.user, req.body.text ],
 					(error, results) => {
 					    if (error) {
 							result.push({
@@ -99,6 +99,6 @@ module.exports = {
 				})
 			}
 		}
-		return { order_length : order.length, data : result }
+		return { total_inbox : order.length, data : result }
 	}
 };

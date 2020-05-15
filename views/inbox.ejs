@@ -1,0 +1,54 @@
+<%- include('header', {title: title}); %>
+<div class="content">
+    
+    <!-- Start Content-->
+    <div class="container-fluid">
+        <div class="row page-title">
+            <div class="col-md-12">
+                <nav aria-label="breadcrumb" class="float-right mt-1">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="/inbox">Inbox</a></li>
+                    </ol>
+                </nav>
+                <h4 class="mb-1 mt-0">Whatsapp Inbox</h4>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                    <th scope="col">Contact</th>
+                                    <th scope="col">Message Order</th>
+                                    <th scope="col">Order Time</th>
+                                    <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody_inbox">                                    
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4">
+                                            <div class="d-flex justify-content-center">
+                                                <div id="demo"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end row -->
+        
+    </div> <!-- container-fluid -->
+
+</div> <!-- content -->
+<%- include('footer', {footer_text: footer_text}); %>

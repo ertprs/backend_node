@@ -88,9 +88,26 @@ app.get('/dashboard', (req, res) => {
 		title: 'Dashboard | Whatsapp for sales', 
 		footer_text : Footer_text,
 		js_include: [
+			'/assets/cookieconsent.min.js',
 			'/assets/jquery.min.js',
 			'/assets/sweetalert.min.js',
 			'/assets/js/custom.js',
+			'/assets/js/dashboard.js',
+		]
+	})
+})
+
+app.get('/inbox', (req, res) => {
+	res.render('inbox', { 
+		title: 'Inbox  | Whatsapp for sales', 
+		footer_text : Footer_text,
+		js_include: [
+			'/assets/cookieconsent.min.js',
+			'/assets/jquery.min.js',
+			'/assets/sweetalert.min.js',
+			'/assets/js/custom.js',
+			'/assets/js/inbox.js',
+			'/assets/js/simplePagination.js',
 		]
 	})
 })
@@ -103,12 +120,15 @@ app.get('/logout', (req, res) => {
 app.post('/api/auth', function(req, res) {
     proc.auth_login(req, res, load_module)
 });
+app.post('/api/info', function(req, res) {
+    proc.get_info(req, res, load_module)
+});
 
 // proses dari pesan yang telah masuk
 app.post('/api/incoming-webhook', (req, res) => {	
-	var check_order = messages.check_order(req.body.user, req.body.text, db)
-	if(check_order.order_length == 7){
-		res.send(check_order.data)
+	var save_inbox = messages.save_inbox(req.body.user, req.body.text, db)
+	if(save_inbox.total_inbox == 7){
+		res.send(save_inbox.data)
 	}
 	if(req.body.text == '#info'){
 		res.send(messages.info(req.body.user, req.body.text))
@@ -132,6 +152,10 @@ app.post('/api/incoming-webhook', (req, res) => {
 app.get('/get_inbox', (req, res) => {
 	proc.get_inbox(db, req, res)
 })
+
+app.get('/get_total_inbox', (req, res) => {
+	proc.get_total_inbox(db, req, res)
+});
 
 // parameter body {}
 app.get('/get_process', (req, res) => {

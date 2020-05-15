@@ -1,15 +1,44 @@
 module.exports = {
 	// simpan pesan masuk
 	get_inbox: function (db, req, res) {
+		var limit = 0
+		var offset = 0
+		
+		if(!isNaN(Number(req.query.limit))) {
+			limit = req.query.limit
+		}
+		if(!isNaN(Number(req.query.offset))) {
+			offset = req.query.offset
+		}
+
 		db.query(
-			'SELECT id, chat_id, message, create_order, is_process, is_delivery, is_done FROM wa_order WHERE is_process = $1 AND is_delete <> $2 ORDER BY create_order DESC',
-			[0,1],
+			'SELECT id, chat_id, message, create_time, is_delete FROM whatsapp_inbox WHERE is_delete <> $1 ORDER BY create_time DESC LIMIT $2 OFFSET $3',
+			[1, limit, offset],
 			(error, results) => {
 			    if (error) {
 					//console.log(error)
 					res.json({"status":"failed", "desc": error})
 			    } else {
 					res.json({"status":"ok", "data": results.rows})
+				}
+			}
+		)
+	},
+	get_total_inbox: function(db, req, res) {
+		db.query(
+			'SELECT count(*) as total FROM whatsapp_inbox WHERE is_delete <> $1',
+			[1],
+			(error, results) => {
+			    if (error) {
+					//console.log(error)
+					res.json({"status":"failed", "desc": error})
+			    } else {
+			    	if(results.rows.length > 0){
+			    		res.json({"status":"ok", "data": Number(results.rows[0].total)})
+			    	} else {
+			    		res.json({"status":"ok", "data": 0})
+			    	}
+					
 				}
 			}
 		)
@@ -37,4 +66,14 @@ module.exports = {
 			}
 		)
 	},
+	get_info: function(req, res, load_module){
+		try {
+			var id = req.body.id
+			var token_jwt = load_module.base64decode(id)
+			var result_jwt = load_module.jwt.decode(token_jwt, load_module.config.app.secret_jwt)
+			res.json({"status":"ok", "data":result_jwt})
+		} catch(err){
+			res.json({"status":"failed", "data":err.message})
+		}
+	}
 };
