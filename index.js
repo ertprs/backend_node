@@ -13,7 +13,9 @@ const { base64encode, base64decode } = require('nodejs-base64');
 var config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'))
 const Cookies = require('js-cookie');
 const Footer_text = '@2020 | Whatsapp for sales.'
+const pgp = require('pg-promise')()
 
+// connection using Pool
 const db = new Pool({
   user: config.database.user,
   host: config.database.host,
@@ -22,13 +24,26 @@ const db = new Pool({
   port: config.database.port,
 })
 
-// add library to load_module and distributed to all controllers & models
-var load_module = {
+// connection using PG-Promise
+const cn = {
+    host: config.database.host,
+    port: config.database.port,
+    database: config.database.database,
+    user: config.database.user,
+    password: config.database.password,
+    max: 30 // use up to 30 connections
+};
+
+const db2 = pgp(cn);
+
+// add library to autoload and distributed to all controllers & models
+var autoload = {
 	jwt : jwt,
 	base64decode : base64decode,
 	base64encode : base64encode,
 	config : config,
 	db : db,
+	db2 : db2,
 }
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -75,7 +90,6 @@ app.get('/', (req, res) => {
 		title: 'Login | Whatsapp for sales', 
 		js_include: [
 			'/assets/cookieconsent.min.js',
-			'/assets/jquery.min.js',
 			'/assets/sweetalert.min.js',
 			'/assets/js/custom.js',
 			'/assets/js/login.js',
@@ -89,7 +103,6 @@ app.get('/dashboard', (req, res) => {
 		footer_text : Footer_text,
 		js_include: [
 			'/assets/cookieconsent.min.js',
-			'/assets/jquery.min.js',
 			'/assets/sweetalert.min.js',
 			'/assets/js/custom.js',
 			'/assets/js/dashboard.js',
@@ -103,7 +116,6 @@ app.get('/inbox', (req, res) => {
 		footer_text : Footer_text,
 		js_include: [
 			'/assets/cookieconsent.min.js',
-			'/assets/jquery.min.js',
 			'/assets/sweetalert.min.js',
 			'/assets/js/custom.js',
 			'/assets/js/inbox.js',
@@ -112,17 +124,39 @@ app.get('/inbox', (req, res) => {
 	})
 })
 
+
+app.get('/process', (req, res) => {
+	res.render('process', { 
+		title: 'Process  | Whatsapp for sales', 
+		footer_text : Footer_text,
+		js_include: [
+			'/assets/cookieconsent.min.js',
+			'/assets/sweetalert.min.js',
+			'/assets/js/custom.js',
+			'/assets/js/process.js',
+			'/assets/js/simplePagination.js',
+		]
+	})
+})
+
+app.post('/print_order', (req, res) => {
+	res.render('print_order', { 
+		title: 'Print Order  | Whatsapp for sales', 
+		footer_text : Footer_text,
+		css_include : [
+			'/assets/css/bootstrap.min.css',
+		],
+		js_include: [
+			'/assets/jquery.min.js',
+			'/assets/js/bootstrap.min.js',
+			'/assets/js/print_order.js',
+		]
+	})
+})
+
 app.get('/logout', (req, res) => {
 	res.render('logout', {})
 })
-
-// api v1 restFul
-app.post('/api/auth', function(req, res) {
-    proc.auth_login(req, res, load_module)
-});
-app.post('/api/info', function(req, res) {
-    proc.get_info(req, res, load_module)
-});
 
 // proses dari pesan yang telah masuk
 app.post('/api/incoming-webhook', (req, res) => {	
@@ -148,43 +182,65 @@ app.post('/api/incoming-webhook', (req, res) => {
 	res.send({status:"failed", description:"request not found"})
 })
 
+// api v1 restFul
+app.post('/api/auth', function(req, res) {
+    proc.auth_login(req, res, autoload)
+});
+app.post('/api/info', function(req, res) {
+    proc.get_info(req, res, autoload)
+});
+
+/* bagian INBOX APIs interface */
 // parameter body {}
 app.get('/get_inbox', (req, res) => {
 	proc.get_inbox(db, req, res)
 })
 
+// get total all message
 app.get('/get_total_inbox', (req, res) => {
 	proc.get_total_inbox(db, req, res)
 });
 
+// get detail message & parsing
+app.get('/get_detail_inbox', (req, res) => {
+	proc.get_detail_inbox(db, req, res, tools)
+});
+
+// save message
+app.post('/update_inbox', (req, res) => {
+	proc.update_inbox(db, req, res, db2)
+});
+
+// delete message
+app.get('/delete_inbox', (req, res) => {
+	proc.delete_inbox(req, res, autoload)
+});
+
+
+/* bagian PROCESS ORDER APIs interface */
 // parameter body {}
 app.get('/get_process', (req, res) => {
-	proc.get_process(db, req, res)
+	proc.get_process(req, res, autoload)
 })
 
-// parameter body {}
-app.get('/get_delivery', (req, res) => {
-	proc.get_delivery(db, req, res)
-})
+// get total all process
+app.get('/get_total_process', (req, res) => {
+	proc.get_total_process(req, res, autoload)
+});
 
-// parameter body { id : ? }
-app.post('/delete_order', (req, res) => {
-	proc.delete_order(db, req, res)
-})
+// delete process
+app.get('/delete_process', (req, res) => {
+	proc.delete_process(req, res, autoload)
+});
 
-// parameter body { id : ? }
-app.post('/process_order', (req, res) => {
-	proc.process_order(db, req, res)
-})
+// flag delivery process
+app.get('/process_delivery', (req, res) => {
+	proc.process_delivery(req, res, autoload)
+});
 
-// parameter body { id : ? }
-app.post('/delivery_order', (req, res) => {
-	proc.delivery_order(db, req, res)
-})
-
-// parameter body { id : ? }
-app.post('/done_order', (req, res) => {
-	proc.done_order(db, req, res)
-})
+// get detail process
+app.get('/get_detail_process', (req, res) => {
+	proc.get_detail_process(req, res, autoload)
+});
 
 app.listen(config.app.port, () => console.log(`Service webhook running in port : ${port}`))

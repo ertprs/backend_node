@@ -35,7 +35,7 @@
                                     <tr>
                                         <td colspan="4">
                                             <div class="d-flex justify-content-center">
-                                                <div id="demo"></div>
+                                                <div id="div_pagination"></div>
                                             </div>
                                         </td>
                                     </tr>
@@ -48,6 +48,77 @@
         </div>
         <!-- end row -->
         
+        <div id="modal-process" class="modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog mw-100 w-75" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Preview data</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form id="form-process" class="needs-validation" novalidate>
+                  <div class="form-row">
+                    <div class="col-md-4 mb-3">
+                      <label for="validationTooltip01">Contact / ChatID</label>
+                      <input type="text" id="input-chatid" class="form-control" id="validationTooltip01" placeholder="" value="" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label for="validationTooltip01">Order Time</label>
+                      <input id="input-ordertime" type="text" class="form-control" id="validationTooltip01" placeholder="" value="" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                      <fieldset class="the-fieldset">
+                          <legend class="the-legend">Message</legend>
+                          <div class="form-row">
+                            <div class="col-md-2 mb-3">
+                              <label for="validationDateTime">Date/Time</label>
+                              <input id="input-datetime" type="text" class="form-control" id="validationDateTime" placeholder="" value="" required>
+                            </div>
+                          </div>
+                          <div class="form-row">
+                            <div class="col-md-12 mb-3">
+                              <label for="validationOrderMessage">Order Message</label>
+                              <textarea id="input-ordermessage" class="form-control"></textarea>
+                            </div>
+                          </div>
+                          <div class="form-row">
+                            <div class="col-md-2 mb-3">
+                              <label for="validationQuantity">Quantity</label>
+                              <input id="input-quantity" type="text" class="form-control" id="validationQuantity" placeholder="" value="" required>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                              <label for="validationQuantity">Recipient Name</label>
+                              <input id="input-recipientname" type="text" class="form-control" id="validationQuantity" placeholder="" value="" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                              <label for="validationCourier">Courier</label>
+                              <input id="input-courier" type="text" class="form-control" id="validationCourier" placeholder="" value="" required>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                              <label for="validationPhone">Phone</label>
+                              <input id="input-phone" type="text" class="form-control" id="validationPhone" placeholder="" value="" required>
+                            </div>
+                          </div>
+                          <div class="form-row">
+                            <div class="col-md-12 mb-3">
+                              <label for="validationAddress">Address</label>
+                              <textarea id="input-address" class="form-control" id="validationAddress"></textarea>
+                            </div>
+                          </div>
+                      </fieldset>
+                   </div>
+                   <input type="hidden" id="data-id" />
+                  <button class="btn btn-sm btn-primary float-right" type="submit"><i class="fa fa-cog"></i> Process</button>
+                  <button type="button" class="btn btn-sm btn-secondary float-left" data-dismiss="modal">Close</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
     </div> <!-- container-fluid -->
 
 </div> <!-- content -->

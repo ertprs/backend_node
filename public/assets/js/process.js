@@ -1,6 +1,6 @@
 class PaginationClass {
 	
-	constructor(path_url='/get_inbox', path_url_total='/get_total_inbox', per_page=10, tbody_id='#tbody_inbox', element_pagination='#demo' ){
+	constructor(path_url='/get_process', path_url_total='/get_total_process', per_page=10, tbody_id='#tbody_inbox', element_pagination='#demo' ){
 		this.path_url = path_url;
 		this.path_url_total = path_url_total;
 		this.tbody_id = tbody_id;
@@ -10,6 +10,7 @@ class PaginationClass {
 		this.column_id = '';
 		this.func_edit = function(id){alert('This is default function. ID is : '+id)};
 		this.func_delete = function(id){alert('This is default function. ID is : '+id)};
+		this.func_print = function(id){alert('This is default function. ID is : '+id)};
 
 	}
 
@@ -24,9 +25,10 @@ class PaginationClass {
 		}
 	}
 
-	setEvent(func_edit, func_delete){
+	setEvent(func_edit, func_delete, func_print){
 		this.func_edit = func_edit;
 		this.func_delete = func_delete;
+		this.func_print = func_print;
 	}
 
 	setCols(column_row, column_id){
@@ -45,14 +47,15 @@ class PaginationClass {
 				}
 
 				var style_success = "";
-				if(row['is_process'] == 1){
+				if(row['is_delivery'] == 1){
 					style_success = 'background-color:#43d39e69;';
 				}
 				// change only row.[column] and function
 				$(classObj.tbody_id).append('<tr style="'+style_success+'">\
 					'+str_col+'\
 					<td style="min-width:150px;">\
-						<a action="edit" data="'+row[classObj.column_id]+'" class="row-data btn-success btn-sm" href="javascript:void(0)"><i class="fa fa-edit"></i></a>\
+						<a action="print" data="'+row[classObj.column_id]+'" class="row-data btn-warning btn-sm" href="javascript:void(0)"><i class="fa fa-print"></i></a>\
+						<a action="edit" data="'+row[classObj.column_id]+'" class="row-data btn-success btn-sm" href="javascript:void(0)"><i class="fa fa-paper-plane"></i></a>\
 						<a action="remove" data="'+row[classObj.column_id]+'" class="row-data btn-danger btn-sm" href="javascript:void(0)"><i class="fa fa-trash"></i></a>\
 					</td>\
 				</tr>');
@@ -66,6 +69,9 @@ class PaginationClass {
 			        }
 			        if(action == "remove"){
 			        	classObj.func_delete(data);
+			        }
+			        if(action == "print"){
+			        	classObj.func_print(data);
 			        }
 			    }
 			);
@@ -98,51 +104,41 @@ class PaginationClass {
 
 function paginator(){
 	var paginate = new PaginationClass(
-		'/get_inbox',       // response json [{data:[row]}], ex. http://127.0.0.1/controller/get_inbox?limit=[number]&offset=[number]
-		'/get_total_inbox', // response json {data:number}, ex. http://127.0.0.1/controller/get_total_inbox
+		'/get_process',       // response json [{data:[row]}], ex. http://127.0.0.1/controller/get_process?limit=[number]&offset=[number]
+		'/get_total_process', // response json {data:number}, ex. http://127.0.0.1/controller/get_total_process
 		10,                 // per pages view
 		'#tbody_inbox',     // element tbody ID or table tbody
 		'#div_pagination'   // element destination pagination button
 	);
 	paginate.setCols(
-		['chat_id', 'message', 'create_time'], // column item row from table database
+		['chat_id', 'order_message', 'quantity', 'recipient_name', 'courier', 'phone', 'address'], // column item row from table database
 		'id'                                   // column id from table database
 	);
 	paginate.setEvent(
 		// edit
 		function(id){
-			$('#modal-process').modal('show');
-			$.get('/get_detail_inbox?id='+id, function(response){
-				$('#data-id').val(id);
-				if(response.data.rows.length > 0){
-					$('#input-chatid').val(response.data.rows[0].chat_id);
-					$('#input-ordertime').val(moment(response.data.rows[0].create_time,'YYYY-MM-DDTHH:mm:ss').format('DD-MM-YYYY HH:mm:ss'));
-				}
-				if(response.data.parse.length == 7){
-					for(const cparse of response.data.parse){
-						if(cparse['key'] == '#tanggal/jam'){
-							$('#input-datetime').val(cparse['val']);
-						}
-						if(cparse['key'] == '#pesananorder'){
-							$('#input-ordermessage').val(cparse['val']);
-						}
-						if(cparse['key'] == '#jumlah'){
-							$('#input-quantity').val(cparse['val']);
-						}
-						if(cparse['key'] == '#namapenerima'){
-							$('#input-recipientname').val(cparse['val']);
-						}
-						if(cparse['key'] == '#alamat'){
-							$('#input-address').val(cparse['val']);
-						}
-						if(cparse['key'] == '#nohp'){
-							$('#input-phone').val(cparse['val']);
-						}
-						if(cparse['key'] == '#ekspedisi'){
-							$('#input-courier').val(cparse['val']);
-						}
-					}
-				}
+			swal({
+			  title: "Are you sure?",
+			  text: "You have sent an order",
+			  icon: "warning",
+			  buttons: true,
+			  dangerMode: true,
+			})
+			.then((willDelete) => {
+			  if (willDelete) {
+			  	$.get('/process_delivery?id='+id, function(response){
+			  		if(response.status == 'success'){
+					    swal("Data has been saved!", {
+					      icon: "success",
+					    });
+					    paginator();
+			  		} else {
+					    swal("Failed to update data!", {
+					      icon: "error",
+					    });
+			  		}
+			  	});
+			  }
 			});
 		},
 		// delete
@@ -156,7 +152,7 @@ function paginator(){
 			})
 			.then((willDelete) => {
 			  if (willDelete) {
-			  	$.get('/delete_inbox?id='+id, function(response){
+			  	$.get('/delete_process?id='+id, function(response){
 			  		if(response.status == 'success'){
 					    swal("Data has been deleted!", {
 					      icon: "success",
@@ -170,6 +166,11 @@ function paginator(){
 			  	});
 			  }
 			});
+		},
+		// print
+		function(id){
+			$('#data-id').val(id);
+			$('#modal-print').modal('show');
 		}
 	);
 
@@ -178,53 +179,44 @@ function paginator(){
 
 $(document).ready(function() {
 	paginator();
-	$("#form-process").on("submit", function(){
-		var data_id = $('#data-id').val();
-		var chat_id = $('#input-chatid').val();
-		var order_time = $('#input-ordertime').val();
-		var date_time = $('#input-datetime').val();
-		var order_message = $('#input-ordermessage').val();
-		var quantity = $('#input-quantity').val();
-		var recipient_name = $('#input-recipientname').val();
-		var address = $('#input-address').val();
-		var phone = $('#input-phone').val();
-		var courier = $('#input-courier').val();
-		var data_json = {
-			id : data_id,
-			chat_id : chat_id,
-			order_time : order_time,
-			date_time : date_time,
-			order_message : order_message,
-			quantity : quantity,
-			recipient_name : recipient_name,
-			courier : courier,
-			phone : phone,
-			address : address
-		};
- 		$.ajax({
-	        url: "/update_inbox",
-	        type: "POST",
-	        contentType: 'application/json',
-	        dataType:'json',
-	        data: JSON.stringify(data_json),
-	        success: function (response) {
-                swal({
-                    title: "Success",
-                    text: "Save data successfully",
-                    icon: "success",
-                    timer: 1000,
-                    showCancelButton: false,
-                    showConfirmButton: false,
-                    buttons: false
-                }).then(function()  {
-                	$('#modal-process').modal('hide');
-                	paginator();
-                })
-	        },
-	        error: function(jqXHR, textStatus, errorThrown) {
-	           console.log(textStatus, errorThrown);
-	        }
-    	});
-		return false;
-	})
+	// $("#form-print").on("submit", function(){
+	// 	var data_id = $('#data-id').val();
+	// 	var store = $('#input-store').val();
+	// 	var name = $('#input-name').val();
+	// 	var phone = $('#input-phone').val();
+	// 	var address = $('#input-address').val();
+	// 	var data_json = {
+	// 		id : data_id,
+	// 		store : store,
+	// 		order_time : order_time,
+	// 		name : name,
+	// 		phone : phone,
+	// 		address : address,
+	// 	};
+ // 		$.ajax({
+	//         url: "/print_order/?id="+data_id,
+	//         type: "POST",
+	//         contentType: 'application/json',
+	//         dataType:'json',
+	//         data: JSON.stringify(data_json),
+	//         success: function (response) {
+ //                swal({
+ //                    title: "Success",
+ //                    text: "Save data successfully",
+ //                    icon: "success",
+ //                    timer: 1000,
+ //                    showCancelButton: false,
+ //                    showConfirmButton: false,
+ //                    buttons: false
+ //                }).then(function()  {
+ //                	$('#modal-process').modal('hide');
+ //                	paginator();
+ //                })
+	//         },
+	//         error: function(jqXHR, textStatus, errorThrown) {
+	//            console.log(textStatus, errorThrown);
+	//         }
+ //    	});
+	// 	return false;
+	// })
 });
